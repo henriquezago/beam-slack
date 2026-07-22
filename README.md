@@ -2,6 +2,10 @@
 
 BeamSlack is a learning project for exploring Elixir, Phoenix, OTP, and the BEAM by building a Slack-like application. Phase 0 contains only a Phoenix JSON API, Ecto/PostgreSQL configuration, a React/TypeScript frontend, and an end-to-end health check.
 
+The complete learning roadmap and Codex collaboration rules live in
+[`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md). Keeping it in the repository gives
+new development and Codex sessions the same source of truth.
+
 ## Requirements
 
 - Elixir 1.17+ and Erlang/OTP 25+

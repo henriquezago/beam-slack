@@ -62,7 +62,7 @@ defmodule BeamSlack.AccountsTest do
     end
 
     test "returns nil when the user does not exist" do
-      assert Accounts.get_user(-1) == nil
+      assert Accounts.get_user(Ecto.UUID.generate()) == nil
     end
   end
 

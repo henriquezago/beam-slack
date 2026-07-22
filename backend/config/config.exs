@@ -10,7 +10,7 @@ import Config
 config :beamslack,
   namespace: BeamSlack,
   ecto_repos: [BeamSlack.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 # Configure the endpoint
 config :beamslack, BeamSlackWeb.Endpoint,
