@@ -10,7 +10,7 @@ new development and Codex sessions the same source of truth.
 
 - Elixir 1.17+ and Erlang/OTP 25+
 - Node.js 20.19+ (Node.js 24 LTS is recommended)
-- pnpm 11+
+- Yarn Classic 1.22.22 (pinned via [Volta](https://volta.sh/) in `frontend/package.json`)
 - Docker Desktop (or another Docker Engine with Compose) for PostgreSQL 17
 
 ## Local development
@@ -35,9 +35,11 @@ In another terminal, install and start the frontend:
 
 ```powershell
 cd frontend
-pnpm install
-pnpm dev
+yarn install
+yarn dev
 ```
+
+Volta reads the Node and Yarn pins from `frontend/package.json` when you work in that directory.
 
 Open http://localhost:5173. Vite proxies `/api` requests to Phoenix at http://127.0.0.1:4000.
 
@@ -50,8 +52,8 @@ cd backend
 mix test
 
 cd ../frontend
-pnpm test
-pnpm build
+yarn test
+yarn build
 ```
 
 Backend tests require PostgreSQL. The frontend tests mock the health response and do not require Phoenix to be running.
