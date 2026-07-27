@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:a": "VITE_API_URL=http://127.0.0.1:4000 PORT=5173 vite",
+    "dev:b": "VITE_API_URL=http://127.0.0.1:4001 PORT=5174 vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
@@ -12,14 +14,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "phoenix": "^1.8.9",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^24.13.2",
+    "@types/phoenix": "^1.6.7",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
