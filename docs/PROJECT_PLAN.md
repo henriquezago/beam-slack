@@ -2,18 +2,12 @@
 
 ## Goal
 
-Build a Slack-like collaboration platform using:
+Build a Slack-like collaboration platform using Elixir, Phoenix, Ecto, PostgreSQL,
+React, and TypeScript.
 
-* Elixir
-* Phoenix
-* Ecto
-* PostgreSQL
-* React
-* TypeScript
-
-The primary objective is not simply to build a working product.
-
-The primary objective is to deeply understand the Erlang/Elixir ecosystem and the concepts that make the BEAM unique:
+The primary objective is not simply to build a working product. The primary
+objective is to deeply understand the Erlang/Elixir ecosystem and the concepts
+that make the BEAM unique:
 
 * lightweight processes
 * message passing
@@ -37,135 +31,104 @@ The primary objective is to deeply understand the Erlang/Elixir ecosystem and th
 * fault tolerance
 * failure recovery
 
-I have previous professional experience with Elixir, but I did not have enough opportunities to deeply explore OTP and BEAM architecture.
-
-This project should prioritize those concepts.
-
----
-
-# AI Collaboration Rules
-
-You are my pair programmer and tutor.
-
-Do not optimize for implementing the application as quickly as possible.
-
-Optimize for maximizing my understanding of Elixir, OTP, Phoenix, and the BEAM.
-
-There are two categories of tasks.
+The learner has previous professional Elixir experience but has not had enough
+opportunity to deeply explore OTP and BEAM architecture. This project prioritizes
+those concepts.
 
 ---
 
-# Tasks Codex May Implement Directly
+# How We Work
 
-You may directly generate:
+This document originally split the project into 28 sequential phases, each gated
+behind a nine-step Socratic dialogue. That protocol was the bottleneck: the
+learner spent most of the calendar time waiting for conversational turns rather
+than writing OTP code, and the product surface stayed too thin to exercise the
+interesting runtime behavior.
 
-* Phoenix project scaffolding
-* React project scaffolding
-* TypeScript configuration
-* CSS
-* visual components
-* forms
-* standard CRUD
-* repetitive Ecto schemas
-* Ecto migrations
+The roadmap is now organized as **five tracks**. Each track pairs an autonomous
+Codex build batch (the product surface, plumbing, and test harnesses) with a
+small number of concentrated **labs** that the learner owns outright.
+
+## Codex builds autonomously
+
+Codex does not stop to ask permission for any of the following, and should batch
+this work as large as is practical:
+
+* Phoenix and React scaffolding, TypeScript config, CSS, UI components, forms
+* REST controllers, JSON views, routers, request tests
 * authentication boilerplate
-* GraphQL boilerplate
-* basic Phoenix controllers
-* repetitive tests
-* Docker development configuration
-* PostgreSQL setup
-* utility functions
-* frontend state handling
-* UI components
-* API client code
+* Ecto schemas, migrations, changesets, repetitive context functions
+* GraphQL/Absinthe schema boilerplate
+* socket and channel *plumbing* (`UserSocket`, `socket/3` in the endpoint,
+  adding `Phoenix.PubSub` to the supervision tree, module skeletons)
+* frontend state handling, API clients, WebSocket client wiring
+* Docker and PostgreSQL development configuration
+* seeds, fixtures, utility functions, repetitive tests
+* observability setup (Telemetry, LiveDashboard, structured logging)
+* fault-injection tooling, load-test harnesses, multi-node dev scripts
 
-The purpose is to avoid spending learning time on repetitive code.
+Anything that is repetitive, mechanical, or has one obvious correct shape belongs
+to Codex. The learner should not spend learning time on it.
 
----
+## The learner owns the labs
 
-# Core Learning Tasks
+The following remain the learner's to design and implement:
 
-DO NOT immediately implement the following for me:
-
-* raw Elixir processes
-* message passing
-* GenServer
-* Supervisor
-* DynamicSupervisor
-* Registry
-* process monitoring
-* process linking
-* supervision-tree design
-* restart strategies
-* process lifecycle
-* ETS ownership
-* PubSub architecture decisions
+* raw processes, message passing, and recursive receive loops
+* GenServer callback design and state ownership
+* Supervisor and DynamicSupervisor topology, restart strategies, child specs
+* Registry-based process discovery and the races around it
+* process lifecycle: when a process should start, and who decides it stops
+* process monitoring and linking
+* ETS ownership and lifetime
+* PubSub topic architecture and fan-out decisions
 * Presence architecture
-* fault recovery
-* state ownership
-* distributed node behavior
-* distributed process discovery
+* timer-driven state machines
+* failure boundaries and fault recovery design
+* distributed node behavior and cross-node process discovery
+* backpressure and process design under load
 
-For these tasks:
+## The lab protocol
 
-1. Explain the problem.
-2. Ask me how I would solve it.
-3. Evaluate my proposal.
-4. Challenge incorrect assumptions.
-5. Explain tradeoffs.
-6. Give hints.
-7. Let me implement the solution.
-8. Review my implementation.
-9. Only provide a complete solution if I explicitly ask.
+Codex replaces the old nine-step dialogue with two written artifacts, delivered
+up front so the learner is never blocked waiting on a reply.
 
-Never silently replace my implementation.
+1. **A design brief** at `docs/labs/NN-name.md` containing: the problem, the
+   constraints, the realistic options with their tradeoffs, the failure questions
+   to answer, and explicit acceptance criteria. The brief poses the questions and
+   lays out the design space. It does **not** contain the answer, and it does not
+   contain implementation code.
+2. **Failing tests as the specification.** Codex writes the test file, plus the
+   target module's `@moduledoc` and `@spec`s, and nothing else. The learner writes
+   the implementation. `mix test` is the definition of done, so the learner gets
+   immediate feedback without waiting for a review turn.
+
+Rules that still hold absolutely:
+
+* Codex never writes the body of a function assigned to a lab.
+* Codex never silently replaces, refactors, or "cleans up" the learner's
+  implementation. If it looks wrong, say so and ask.
+* Codex may review on request, and may point out a bug it notices, but does not
+  hand over a full solution unless the learner explicitly asks for one.
+* If a Codex build batch needs a lab module that does not exist yet, Codex stubs
+  the call site and moves on rather than implementing the lab.
 
 ---
 
 # Project Concept
 
-The application is called:
+The application is called **BeamSlack**. It is a simplified Slack-like
+collaboration application.
 
-**BeamSlack**
+Users belong to workspaces. A workspace contains channels. Users can join
+workspaces, join channels, send messages, reply in threads, see online users, see
+typing indicators, react to messages, receive notifications, and search message
+history.
 
-It is a simplified Slack-like collaboration application.
-
-Users belong to workspaces.
-
-A workspace contains channels.
-
-Users can:
-
-* join workspaces
-* join channels
-* send messages
-* reply in threads
-* see online users
-* see typing indicators
-* react to messages
-* receive notifications
-* search message history
-
-Later versions may support:
-
-* private channels
-* direct messages
-* file uploads
-* message editing
-* message deletion
-* mentions
-* background notifications
-* multiple connected devices
-* GraphQL
-* distributed BEAM nodes
-
-The architecture should evolve gradually.
-
-Do not introduce unnecessary infrastructure early.
-
-Avoid Redis, Kafka, RabbitMQ, Kubernetes, or microservices unless a later problem clearly justifies them.
-
-Prefer learning what OTP and the BEAM provide first.
+The architecture should evolve gradually. Do not introduce unnecessary
+infrastructure early. Avoid Redis, Kafka, RabbitMQ, Kubernetes, and microservices
+unless a later problem clearly justifies them. Prefer learning what OTP and the
+BEAM provide first.
 
 ---
 
@@ -173,1201 +136,311 @@ Prefer learning what OTP and the BEAM provide first.
 
 Whenever implementing a feature, explicitly classify its state.
 
-## Durable State
+## Durable state
 
-State that must survive process, application, and node crashes.
+State that must survive process, application, and node crashes: users,
+workspaces, channels, memberships, messages, threads, reactions, file metadata,
+notification history. Normally PostgreSQL or durable object storage.
 
-Examples:
+## Ephemeral state
 
-* users
-* workspaces
-* channels
-* workspace memberships
-* channel memberships
-* messages
-* threads
-* reactions
-* file metadata
-* notification history
+State that may disappear and be reconstructed: online presence, active socket
+connections, typing indicators, temporary process state, caches. Candidates are
+Elixir process state, Phoenix Presence, and ETS.
 
-Normally stored in PostgreSQL or durable object storage.
+## Recoverable operational state
 
----
-
-## Ephemeral State
-
-State that may disappear and be reconstructed.
-
-Examples:
-
-* online presence
-* active socket connections
-* typing indicators
-* temporary process state
-* caches
-
-Potential technologies:
-
-* Elixir process state
-* Phoenix Presence
-* ETS
-
----
-
-## Recoverable Operational State
-
-An operation that should survive worker failure.
-
-Examples:
-
-* image processing
-* email notification
-* push notification
-* file processing
-* search indexing
-
-Potential technologies:
-
-* Oban
-* persisted job state
-* retries
-* idempotency
+An operation that should survive worker failure: image processing, email and push
+notifications, file processing, search indexing. Candidates are Oban, persisted
+job state, retries, and idempotency keys.
 
 Always discuss which category a new feature belongs to.
 
 ---
 
-# Phase 0 — Project Setup
+# Current Status
 
-Codex may implement this phase.
+Complete:
 
-Create:
+* **Project setup.** Phoenix + Ecto + PostgreSQL backend, React + TypeScript
+  frontend, Docker Postgres, `GET /api/health` and a frontend health screen.
+* **Slack domain model.** `Accounts`, `Workspaces`, `Channels`, and `Messaging`
+  contexts with UUID primary keys, migrations, changesets, and context tests.
+  Everything synchronous, no real-time behavior.
+* **Learner labs on raw processes, GenServer, Supervisor, and DynamicSupervisor.**
+  Implemented in `backend/lib/beamslack/experiments/`. These are standalone
+  experiments, not yet part of the supervision tree; Track 1 promotes them into
+  the running application.
 
-Backend:
-
-* Phoenix
-* Ecto
-* PostgreSQL
-
-Frontend:
-
-* React
-* TypeScript
-
-Configure:
-
-* local development
-* database
-* backend tests
-* frontend tests
-
-Create a simple health endpoint.
-
-Do not implement custom OTP processes yet.
+The supervision tree is still `[BeamSlack.Repo, BeamSlackWeb.Endpoint]`. There is
+no HTTP surface beyond the health endpoint, and no Channels, PubSub, or Presence.
 
 ---
 
-# Phase 1 — Slack Domain Model
+# Track Structure
 
-Create the durable relational model.
+```mermaid
+graph LR
+  T1[Track 1: Channel runtime and product surface] --> T2[Track 2: Real-time]
+  T2 --> T3[Track 3: Process internals]
+  T3 --> T4[Track 4: Distribution]
+  T5[Track 5: Product features, background] -.-> T1
+  T5 -.-> T2
+  T5 -.-> T3
+```
 
-Entities:
+Tracks 1 through 4 run in order, because each depends on the runtime surface the
+previous one established. Track 5 is product work with almost no BEAM content, so
+Codex runs it in the background between labs rather than as a sequential gate.
 
-## User
-
-* id
-* name
-* email
-
-## Workspace
-
-* id
-* name
-* owner_id
-
-## WorkspaceMember
-
-* workspace_id
-* user_id
-* role
-
-Possible roles:
-
-* owner
-* admin
-* member
-
-## Channel
-
-* id
-* workspace_id
-* name
-* type
-
-Initially support:
-
-* public
-* private
-
-## ChannelMember
-
-For private channels and membership tracking.
-
-## Message
-
-* id
-* channel_id
-* sender_id
-* body
-* inserted_at
-
-Codex may generate:
-
-* migrations
-* schemas
-* changesets
-* repetitive context functions
-
-Before implementation, explain and review the relationships with me.
-
-Initial features:
-
-* create user
-* create workspace
-* join workspace
-* create channel
-* join channel
-* send message
-* list messages
-
-Everything should initially work synchronously.
-
-No real-time behavior yet.
+Ordering rationale: real-time, process internals, and distribution carry nearly
+all of the remaining BEAM learning value. GraphQL, file uploads, and search teach
+very little about the BEAM, so they are deferred to an optional tail.
 
 ---
 
-# Learning Checkpoint 1
+## Track 1 — Channel Runtime and the Product Surface
 
-Ask me:
+The goal is a usable application, so that later tracks have somewhere real to
+observe process behavior, plus the learner's first process-discovery lab.
 
-1. Which data is durable?
-2. Where does the data survive an application restart?
-3. What happens if Phoenix crashes after a message has been committed?
-4. What happens if Phoenix crashes before the transaction commits?
+### Codex builds
 
-Discuss transaction boundaries.
+* Token-based authentication over the existing `bcrypt_elixir` setup
+* REST controllers, JSON views, and request tests for users, workspaces,
+  channels, and messages
+* A real `priv/repo/seeds.exs` with a sample workspace, users, channels, and
+  message history
+* React app shell: routing, a typed API client, login, workspace sidebar, channel
+  list, message pane, and composer
 
----
+### Lab 01 — Channel runtime discovery and lifecycle
 
-# Phase 2 — Raw Elixir Processes
+The learner designs and implements `BeamSlack.Runtime.ChannelRuntime` so callers
+never hold PIDs:
 
-Before GenServer, create a learning experiment.
+```elixir
+ChannelRuntime.get_or_start(channel_id)
+```
 
-Do not implement this for me.
+Covering:
 
-Create one raw Elixir process representing temporary runtime state for a channel.
+* `Registry` registration and the `:via` tuple
+* the concurrent-start race: request A and request B both ask for channel 10 at
+  the same time, both see no process, and what
+  `DynamicSupervisor.start_child/2` returning `{:error, {:already_started, pid}}`
+  means for the public API
+* when a runtime process should exist at all — not every channel row should have
+  one; consider inactive channels and millions of channels
+* idle shutdown, and who decides that a process stops
+* promoting `experiments/` into a supervised `BeamSlack.Runtime` namespace in
+  `application.ex`, choosing and justifying the restart strategy
 
-Example state:
+### Checkpoint — supervision tree
 
-* channel_id
-* connected users
-* number of active connections
+The learner should be able to explain, without assistance:
 
-Use:
-
-* `spawn`
-* `send`
-* `receive`
-
-I should manually implement a recursive receive loop.
-
-Exercises:
-
-1. Spawn the process.
-2. Send events.
-3. Update immutable state.
-4. Query the state.
-5. Inspect its PID.
-6. Kill the process.
-7. Observe the state disappearing.
-
-Teach:
-
-* PID
-* mailbox
-* process isolation
-* immutable state
-* recursive receive loops
-
-Ask:
-
-> Why did killing this process not delete the channel messages?
-
-The answer should reinforce:
-
-Runtime process state and durable database state are different things.
-
----
-
-# Phase 3 — GenServer
-
-Convert the raw process into a GenServer.
-
-Do not provide the implementation immediately.
-
-I should implement:
-
-* `start_link`
-* `init`
-* `handle_call`
-* `handle_cast`
-* `handle_info`
-
-Teach:
-
-* `call`
-* `cast`
-* ordinary mailbox messages
-
-Possible runtime state:
-
-* channel ID
-* current active-user count
-* temporary statistics
-
-Do not store permanent Slack message history only in the GenServer.
-
-Discuss:
-
-> Should every channel have a GenServer?
-
-Do not assume the answer is yes.
-
-Consider:
-
-* inactive channels
-* millions of channels
-* process lifecycle
-* state ownership
-
----
-
-# Phase 4 — Supervisors
-
-Run the Channel process without supervision.
-
-Kill it.
-
-Observe that it stays dead.
-
-Then introduce Supervisor.
-
-Do not implement it for me.
-
-Teach:
-
-* child specifications
-* restart policies
-* supervision trees
-
-Discuss:
-
-* permanent
-* transient
-* temporary
-
-Discuss strategies:
-
-* one_for_one
-* one_for_all
-* rest_for_one
-
-Let me choose and justify the strategy.
-
-Then test:
-
-ChannelProcess PID A
-
-→ crash
-
-→ ChannelProcess PID B
-
-The process returns.
-
-Its previous in-memory state does not.
-
-Core lesson:
-
-**Supervisors restore processes, not memory.**
-
----
-
-# Phase 5 — DynamicSupervisor
-
-Channels may have dynamically created runtime processes.
-
-Introduce DynamicSupervisor.
-
-Do not implement directly.
-
-Potential conceptual architecture:
-
-DynamicSupervisor
-
-* ChannelRuntime #general
-* ChannelRuntime #engineering
-* ChannelRuntime #random
-
-Discuss when a runtime process should exist.
-
-Questions:
-
-* Should every database channel have one?
-* Should it only start when someone connects?
-* Should it shut down when nobody is connected?
-* Who decides when it stops?
-
-Let me design the lifecycle.
-
----
-
-# Phase 6 — Registry
-
-Introduce process discovery.
-
-Avoid forcing callers to store PIDs.
-
-Desired conceptual API:
-
-`ChannelRuntime.get_or_start(channel_id)`
-
-Teach Registry.
-
-I should implement:
-
-* process registration
-* lookup
-* dynamic startup
-
-Discuss concurrent startup.
-
-Example:
-
-Request A asks for channel 10.
-
-Request B asks for channel 10.
-
-Both arrive simultaneously.
-
-Both see no process.
-
-What prevents duplicate channel processes?
-
-Let me reason about race conditions.
-
----
-
-# Learning Checkpoint 2 — Supervision Tree
-
-Ask me to explain the application tree.
-
-Conceptually:
-
-Application Supervisor
-
-* Repo
-* Phoenix Endpoint
-* Registry
-* ChannelDynamicSupervisor
-
-  * ChannelRuntime A
-  * ChannelRuntime B
-  * ChannelRuntime C
-
-Ask:
-
-1. What happens when one channel process crashes?
-2. What happens if DynamicSupervisor crashes?
-3. What happens if Registry crashes?
+1. What happens when one channel runtime crashes?
+2. What happens if the DynamicSupervisor crashes?
+3. What happens if the Registry crashes?
 4. What happens if the entire BEAM node crashes?
 5. Which state survives each failure?
 
-Do not continue until I can explain this confidently.
+Core lesson: **supervisors restore processes, not memory.**
 
 ---
 
-# Phase 7 — Phoenix Channels
+## Track 2 — Real-time
 
-Add real-time Slack messaging.
+Slack messaging over Phoenix Channels, plus presence and typing indicators.
 
-Connect React using Phoenix Channels.
+### Codex builds
 
-Codex may scaffold:
+* `UserSocket` and the `socket/3` plug in the endpoint
+* `Phoenix.PubSub` in the supervision tree
+* A `ChannelChannel` skeleton with `join/3` and `handle_in/3` stubs
+* `BeamSlackWeb.Presence` boilerplate
+* The `phoenix` JS client with typed React hooks
+* Live message list, presence list, and typing indicator UI
 
-* socket connection
-* basic Channel module
-* frontend socket client
+### Lab 02 — Persist vs broadcast ordering
 
-But discuss message flow before implementation.
+Should a message be broadcast before or after it is persisted? Analyze database
+failure, process crash, duplicate sends, and client reconnect. Then implement the
+chosen ordering, and decide where the event is emitted from.
 
-Desired flow:
+### Lab 03 — PubSub topic architecture
 
-React
+Design the topic taxonomy and decide which process subscribes to what: the socket
+process, the channel runtime, or both. Teach the distinction between direct
+process messages, GenServer calls, Phoenix Channels, and Phoenix PubSub. Consider
+future subscribers (notifications, analytics, audit logging) without introducing
+unnecessary abstraction.
 
-→ Phoenix Channel
+### Lab 04 — Presence architecture
 
-→ Messaging Context
+Decide whether presence lives in `Phoenix.Presence`, in the channel runtime's own
+state, or both, and why PostgreSQL should not be its source of truth. Compare
+process state, ETS, Presence, and the database.
 
-→ PostgreSQL
+One user may have several presences (desktop, browser, mobile). Verify: open two
+tabs, user appears online; close one tab, user stays online; close the second,
+user goes offline.
 
-→ broadcast
+### Lab 05 — Typing indicators as a timer state machine
 
-→ connected clients
+Deliberately ephemeral, never persisted. The learner hand-writes the expiry logic
+with `Process.send_after/3`, per-user timer references held in process state, and
+timer cancellation on each new keystroke:
 
-Ask:
-
-Should we:
-
-A. broadcast before persistence
-
-or
-
-B. persist before broadcasting?
-
-Analyze:
-
-* database failure
-* process crash
-* duplicate sends
-* client reconnect
-
-Messages should normally be persisted before being considered successfully sent.
-
----
-
-# Phase 8 — Phoenix PubSub
-
-Introduce PubSub.
-
-Teach the distinction between:
-
-* direct process messages
-* GenServer calls
-* Phoenix Channels
-* Phoenix PubSub
-
-Example:
-
-Message created
-
-→ Messaging domain emits event
-
-→ PubSub
-
-→ multiple subscribers
-
-Potential subscribers:
-
-* channel WebSocket
-* notification service
-* analytics
-* audit logger
-
-Discuss loose coupling.
-
-Do not introduce unnecessary abstraction.
+```
+typing_started -> no further events for N seconds -> typing expired
+```
 
 ---
 
-# Phase 9 — Phoenix Presence
+## Track 3 — Process Internals
 
-Implement workspace and channel presence.
+Deliberately break things and watch what the BEAM does about it. This is the most
+important track in the project.
 
-Use Phoenix Presence.
+### Codex builds
 
-Examples:
+* Dev-only fault injection: endpoints and mix tasks to kill named processes,
+  crash a channel runtime, and drop the Repo connection
+* `phoenix_live_dashboard`, Telemetry, and structured logging
+* A harness that floods one process faster than it can drain its mailbox
+* A load-test mix task that opens N concurrent WebSocket clients and simulates
+  joins, presence, messages, typing, and reconnects
 
-Workspace:
+### Lab 06 — Monitors and links
 
-* Henrique online
-* Alice online
-* Bob offline
+`Process.monitor/1`: A monitors B, B is killed, observe `:DOWN`. Then compare with
+links and trapped exits. Discuss when failure should *propagate* versus when it
+should merely be *observed*.
 
-A user may have:
+### Lab 07 — ETS ownership
 
-* desktop connection
-* browser connection
-* mobile connection
+Pick a legitimate use case (rate-limit counters, hot workspace metadata cache).
+Create the table, insert, read from several processes, kill the owner, observe
+what happens. Cover `public`/`protected`/`private`, memory lifetime, and the
+`heir` option. Never store permanent messages in ETS.
 
-Teach:
+### Lab 08 — Backpressure
 
-One user may have multiple presences.
+Run the flood harness, watch mailbox growth in LiveDashboard, then fix it.
+Discuss bottlenecks, backpressure strategies, and process design.
 
-Exercises:
+### Lab 09 — Failure matrix
 
-1. Open two tabs.
-2. User appears online.
-3. Close one tab.
-4. User remains online.
-5. Close second tab.
-6. User becomes offline.
-
-Discuss why presence should usually not use PostgreSQL as its primary source of truth.
-
-Compare:
-
-* process state
-* ETS
-* Presence
-* database
+For every injected fault, answer: What died? What survived? What restarted? What
+data disappeared? What data remained? Who performed recovery? Is the behavior
+acceptable?
 
 ---
 
-# Phase 10 — Typing Indicators
+## Track 4 — Distribution
 
-Add:
+The goal is to understand that BEAM distribution does not eliminate
+distributed-systems problems.
 
-"Henrique is typing..."
+### Codex builds
 
-This is deliberately ephemeral.
+* Two-node dev scripts with distinct short names, cookies, and HTTP ports
+* A way to point separate browser sessions at each node
 
-Do not store typing events permanently.
+No Kubernetes, and nothing that hides the topology. The learner should be able to
+describe the node layout from memory.
 
-Use:
+### Lab 10 — Node connection and cross-node discovery
 
-* Channel events
-* PubSub
-* timers
+Manual `Node.connect/1` and `Node.list/0`, then the central problem: a `Registry`
+is node-local, so `ChannelRuntime.get_or_start/1` will happily start a second
+process for the same channel on a second node. Evaluate `:global`, `:pg`, and
+Horde-style approaches conceptually, and decide what BeamSlack should do.
 
-I should manually implement timeout behavior.
+### Lab 11 — Kill a node
 
-Example:
+User A on node A, user B on node B. Kill node A and observe A's WebSocket, both
+nodes' processes, Presence, the messages in PostgreSQL, and reconnection. Then
+attribute each recovery mechanism to OTP, Phoenix, client reconnect logic, or
+PostgreSQL, without conflating them.
 
-typing_started
+### Lab 12 — Network partitions
 
-→ no more events for N seconds
-
-→ typing expired
-
-Use this to teach timers and process messages.
-
----
-
-# Phase 11 — Threads
-
-Add Slack-style message threads.
-
-Data model:
-
-Message
-
-* optional parent_message_id
-
-or another appropriate relational model.
-
-Codex may implement database boilerplate.
-
-Discuss:
-
-* retrieving thread messages
-* broadcasting thread updates
-* subscriptions
-
-Thread messages are durable.
-
-Thread viewer presence is ephemeral.
-
-Keep these concerns separate.
+Simulate node A losing sight of node B. Explore stale presence, divergent
+distributed state, and split brain. Discuss CAP conceptually. The goal is not to
+build Raft.
 
 ---
 
-# Phase 12 — Reactions
+## Track 5 — Product Features (background)
 
-Add emoji reactions.
+Codex builds these end to end while the learner works on labs. Almost no BEAM
+content, so they are not a gate on anything.
 
-Examples:
+* **Threads.** `parent_message_id` on messages, thread retrieval, thread
+  broadcasts. Thread messages are durable; thread-viewer presence is ephemeral;
+  keep the two separate.
+* **Reactions.** Persisted, real-time via PubSub, unique on
+  `user + message + emoji`. Idempotent by construction.
+* **Mentions.** `@user` and `@channel`: persist the message, detect mentions,
+  emit notification events.
+* **Notifications.** In-app first, email later.
 
-👍
-❤️
-😂
+### Lab 13 — Notification failure boundaries
 
-Persist reactions.
-
-Make reactions real-time through PubSub.
-
-Discuss idempotency.
-
-What happens if the same reaction request is sent twice?
-
-Consider uniqueness constraints such as:
-
-user + message + emoji.
-
----
-
-# Phase 13 — Mentions
-
-Implement:
-
-@henrique
-
-@channel
-
-When sending a message:
-
-1. persist message
-2. detect mentions
-3. emit notification events
-
-Do not initially send emails.
-
-Use this feature to introduce event-driven architecture.
+The one learner-owned piece here. Sending a Slack message must not fail because
+the email provider is down. Decide what is synchronous and what is asynchronous,
+and classify each notification path across `Task`, a supervised `Task`, and a
+durable Oban job by asking: what happens if the BEAM node dies halfway through
+this operation?
 
 ---
 
-# Phase 14 — Notification Service
-
-Create a notification component.
-
-Examples:
-
-* mention
-* thread reply
-* direct message
-
-Start with in-app notifications.
-
-Later support email.
-
-Discuss what should be synchronous vs asynchronous.
-
-Example:
-
-Sending a Slack message should not fail because the email provider is unavailable.
-
-Introduce failure boundaries.
-
----
-
-# Phase 15 — Process Monitoring
-
-Create an explicit learning exercise with:
-
-`Process.monitor/1`
-
-Process A monitors Process B.
-
-Kill B.
-
-Observe `:DOWN`.
-
-Teach:
-
-* monitors
-* links
-
-Discuss when you want:
-
-* failure propagation
-* failure observation
-
-I should implement this manually.
-
----
-
-# Phase 16 — ETS
-
-Introduce ETS for an appropriate use case.
-
-Possible examples:
-
-* temporary rate-limit counters
-* hot workspace metadata cache
-* frequently accessed lookup data
-
-Do not store permanent messages in ETS.
-
-I should manually:
-
-1. create table
-2. insert values
-3. read from multiple processes
-4. kill owner
-5. observe behavior
-
-Teach:
-
-* ETS ownership
-* public/protected/private
-* memory lifetime
-
-Discuss ETS `heir` conceptually.
-
----
-
-# Phase 17 — Fault Injection Lab
-
-Create development-only mechanisms to deliberately cause failures.
-
-Examples:
-
-* crash channel runtime
-* kill random GenServer
-* terminate worker
-* disconnect PostgreSQL
-* disconnect browser
-* terminate Phoenix node
-
-For every failure, ask:
-
-1. What died?
-2. What survived?
-3. What restarted?
-4. What data disappeared?
-5. What data remained?
-6. Who performed recovery?
-7. Is the behavior acceptable?
-
-This is one of the most important phases.
-
----
-
-# Phase 18 — GraphQL with Absinthe
-
-Introduce GraphQL.
-
-Use:
-
-* Absinthe
-
-Queries:
-
-* current user
-* workspace
-* channels
-* channel history
-* thread messages
-
-Mutations:
-
-* create channel
-* send message
-* add reaction
-
-Codex may generate schema boilerplate.
-
-I should understand and review resolvers.
-
-Teach:
-
-* schema
-* types
-* queries
-* mutations
-* resolver
-* context
-* authentication
-* authorization
-
----
-
-# Phase 19 — N+1 Problem
-
-Deliberately implement a query that causes N+1.
-
-Example:
-
-Workspace
-
-→ Channels
-
-→ Messages
-
-→ Authors
-
-Observe generated SQL queries.
-
-Then introduce:
-
-* Dataloader
-* batching
-
-Do not solve the problem before demonstrating it.
-
----
-
-# Phase 20 — GraphQL Subscriptions
-
-Implement one feature using GraphQL Subscriptions.
-
-Compare it against Phoenix Channels.
-
-Questions:
-
-* Which provides better ergonomics?
-* Which fits the existing frontend?
-* Are we duplicating real-time mechanisms?
-
-Do not blindly replace Phoenix Channels.
-
----
-
-# Phase 21 — File Uploads
-
-Add Slack-style attachments.
-
-Architecture:
-
-Client
-
-→ request upload
-
-→ backend creates attachment metadata
-
-→ signed URL
-
-→ object storage
-
-→ client confirms completion
-
-Persist states:
-
-* pending
-* completed
-* failed
-
-Do not route large files through a long-lived GenServer unnecessarily.
-
-Discuss:
-
-* browser crash
-* backend crash
-* duplicate completion request
-* incomplete upload
-
-Introduce idempotency.
-
----
-
-# Phase 22 — Background Jobs with Oban
-
-Add asynchronous tasks.
-
-Examples:
-
-* generate image thumbnail
-* send email notification
-* process uploaded file
-
-Use Oban.
-
-Teach differences between:
-
-* `Task`
-* supervised `Task`
-* durable background job
-
-Ask:
-
-> What happens if the BEAM node crashes halfway through this operation?
-
-Use the answer to determine if persistence is required.
-
----
-
-# Phase 23 — Search
-
-Implement Slack-style message search.
-
-Start with PostgreSQL search capabilities.
-
-Do not introduce Elasticsearch immediately.
-
-Search:
-
-* workspace messages
-* messages by user
-* messages in channel
-
-Only introduce dedicated search infrastructure if PostgreSQL limitations become a meaningful learning problem.
-
----
-
-# Phase 24 — Multiple BEAM Nodes
-
-Run:
-
-Node A
-
-Node B
-
-Connect using distributed Erlang.
-
-Learn:
-
-* `Node.list`
-* node connection
-* process communication across nodes
-
-Run Phoenix instances on both.
-
-Connect different clients to different nodes.
-
-Observe:
-
-* PubSub
-* Presence
-* channels
-
-Do not hide the setup behind Kubernetes.
-
-Understand the node topology manually.
-
----
-
-# Phase 25 — Kill a Node
-
-Connect:
-
-User A → Node A
-
-User B → Node B
-
-Then kill Node A.
-
-Observe:
-
-* User A WebSocket
-* Node A processes
-* Node B processes
-* Presence
-* PostgreSQL messages
-* reconnection
-
-Ask me:
-
-Which recovery mechanisms came from:
-
-* OTP
-* Phoenix
-* client reconnect logic
-* PostgreSQL
-* distributed infrastructure
-
-Do not conflate them.
-
----
-
-# Phase 26 — Network Partitions
-
-Discuss and simulate where practical:
-
-Node A cannot see Node B.
-
-Explore:
-
-* stale presence
-* distributed state
-* split brain
-
-Discuss CAP theorem conceptually.
-
-The goal is not to build Raft or distributed consensus.
-
-The goal is to understand that BEAM distribution does not eliminate distributed-systems problems.
-
----
-
-# Phase 27 — Observability
-
-Add:
-
-* Telemetry
-* LiveDashboard
-* structured logging
-
-Inspect:
-
-* process count
-* memory
-* scheduler utilization
-* mailbox size
-
-Create an experiment where one process receives messages faster than it processes them.
-
-Observe mailbox growth.
-
-Discuss:
-
-* bottlenecks
-* backpressure
-* process design
-
----
-
-# Phase 28 — Load Testing
-
-Simulate Slack clients.
-
-Start with:
-
-100 concurrent connections
-
-Then:
-
-1,000
-
-Increase when reasonable.
-
-Simulate:
-
-* users joining channels
-* presence
-* messages
-* typing events
-* reconnects
-
-Observe BEAM behavior.
-
-The purpose is not achieving a specific benchmark.
-
-The purpose is understanding concurrency.
-
----
-
-# Optional Advanced Features
-
-After the core project:
-
-## Direct Messages
-
-Private 1:1 conversations.
-
-## Group DMs
-
-Small private groups outside normal channels.
-
-## Message Editing
-
-Handle real-time updates.
-
-## Message Deletion
-
-Discuss hard delete vs soft delete.
-
-## Pinned Messages
-
-Durable feature.
-
-## Scheduled Messages
-
-Excellent Oban exercise.
-
-## Reminder System
-
-Example:
-
-`/remind me in 2 hours`
-
-Good exercise for durable scheduled jobs.
-
-## Bot System
-
-Create Slack-like bots.
-
-Bots subscribe to events through PubSub.
-
-## Slash Commands
-
-Examples:
-
-`/giphy`
-
-`/remind`
-
-`/status`
-
-Good opportunity to explore extensibility.
-
-## AI Bot
-
-Create a channel AI assistant.
-
-Use asynchronous LLM requests.
-
-Explore:
-
-* timeout
-* cancellation
-* streaming
-* rate limiting
-* background work
-
-## Webhooks
-
-External applications can publish events.
-
-Good exercise for idempotency and authentication.
+## Optional Tail
+
+Only if wanted after Track 4, in roughly this order:
+
+* **GraphQL with Absinthe.** Queries and mutations over the existing contexts.
+  Codex generates the schema; the learner reviews resolvers, context, and
+  authorization.
+* **The N+1 problem.** Deliberately write `workspace -> channels -> messages ->
+  authors`, observe the SQL, then introduce Dataloader and batching. Do not solve
+  it before demonstrating it.
+* **GraphQL subscriptions.** Implement exactly one feature this way and compare
+  against Phoenix Channels. Do not blindly replace Channels.
+* **File uploads.** Signed-URL flow with `pending`/`completed`/`failed` metadata
+  states, and idempotent completion. Do not route large files through a
+  long-lived GenServer.
+* **Background jobs with Oban.** Thumbnails, emails, file processing.
+* **Search.** PostgreSQL full-text first. Only consider dedicated search
+  infrastructure if PostgreSQL's limits become a real learning problem.
+* **Direct messages, group DMs, message editing and deletion, pinned messages,
+  scheduled messages, reminders, bots, slash commands, an AI channel assistant,
+  and webhooks.**
 
 ---
 
 # Final Learning Review
 
-At the end, ask me to explain BeamSlack entirely without assistance.
+At the end, the learner explains BeamSlack entirely without assistance.
 
-## Processes
+**Processes.** What is a BEAM process? What is its mailbox? Why is state
+immutable? What happens when a process crashes?
 
-* What is a BEAM process?
-* What is its mailbox?
-* Why is state immutable?
-* What happens when a process crashes?
+**OTP.** GenServer, Supervisor, DynamicSupervisor, Registry, links, monitors.
 
-## OTP
+**Failure.** Channel runtime crash, WebSocket process crash, background worker
+crash, database failure, complete node crash.
 
-* GenServer
-* Supervisor
-* DynamicSupervisor
-* Registry
-* links
-* monitors
+**State.** Which state belongs in PostgreSQL, process memory, ETS, Phoenix
+Presence, object storage, and Oban.
 
-## Failure
+**Real-time.** Phoenix Channels, PubSub, Presence.
 
-Explain:
-
-* channel process crash
-* WebSocket process crash
-* background worker crash
-* database failure
-* complete node crash
-
-## State
-
-Explain which state belongs in:
-
-* PostgreSQL
-* process memory
-* ETS
-* Phoenix Presence
-* object storage
-* Oban
-
-## Real-time
-
-Explain:
-
-* Phoenix Channels
-* PubSub
-* Presence
-
-## Distributed Systems
-
-Explain:
-
-* multiple BEAM nodes
-* node failure
-* client reconnect
-* network partitions
+**Distributed systems.** Multiple BEAM nodes, node failure, client reconnect,
+network partitions.
 
 ---
 
@@ -1385,34 +458,23 @@ Then:
 
 > What information do we actually need to recover?
 
-The goal is to stop thinking only in terms of objects and services and start thinking in terms of:
-
-* isolated processes
-* state ownership
-* message passing
-* failure boundaries
-* supervision
-* recovery
+The goal is to stop thinking only in terms of objects and services and start
+thinking in terms of isolated processes, state ownership, message passing, failure
+boundaries, supervision, and recovery.
 
 ---
 
-# First Codex Task
+# Appendix: Phase-to-Track Mapping
 
-Inspect the current repository.
+For continuity with the original 28-phase plan.
 
-If empty:
-
-1. Create the minimal Phoenix + Ecto + PostgreSQL backend.
-2. Create the React + TypeScript frontend.
-3. Configure local development.
-4. Create only a health-check flow.
-5. Explain the resulting directory structure.
-6. Do not implement custom GenServers.
-7. Do not implement custom Supervisors.
-8. Do not implement Registry.
-9. Do not implement Phoenix Presence.
-10. Do not introduce GraphQL yet.
-
-Then stop.
-
-Present Phase 1 as the next task and ask me to reason about the Slack domain model before generating the migrations.
+| Original phases | Now |
+| --- | --- |
+| 0 (setup), 1 (domain model) | Complete |
+| 2–5 (raw processes, GenServer, Supervisor, DynamicSupervisor) | Complete, in `experiments/` |
+| 6 (Registry) | Track 1, Lab 01 |
+| 7–10 (Channels, PubSub, Presence, typing) | Track 2, Labs 02–05 |
+| 15–17, 27–28 (monitoring, ETS, fault injection, observability, load testing) | Track 3, Labs 06–09 |
+| 24–26 (multi-node, node kill, partitions) | Track 4, Labs 10–12 |
+| 11–14 (threads, reactions, mentions, notifications) | Track 5, Lab 13 |
+| 18–23 (GraphQL, N+1, subscriptions, uploads, Oban, search) | Optional tail |
