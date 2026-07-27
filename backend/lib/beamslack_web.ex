@@ -39,6 +39,12 @@ defmodule BeamSlackWeb do
     end
   end
 
+  def channel do
+    quote do
+      use Phoenix.Channel
+    end
+  end
+
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,

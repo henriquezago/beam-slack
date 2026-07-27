@@ -63,6 +63,35 @@ defmodule BeamSlack.Workspaces do
   def list_workspaces, do: Repo.all(Workspace)
 
   @doc """
+  Lists the workspaces `user_id` is a member of, ordered by name.
+  """
+  def list_user_workspaces(user_id) do
+    Workspace
+    |> join(:inner, [w], m in WorkspaceMember, on: m.workspace_id == w.id)
+    |> where([_w, m], m.user_id == ^user_id)
+    |> order_by([w], w.name)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns true when `user_id` is a member of `workspace_id`.
+  """
+  def member?(workspace_id, user_id) do
+    WorkspaceMember
+    |> where(workspace_id: ^workspace_id, user_id: ^user_id)
+    |> Repo.exists?()
+  end
+
+  @doc """
+  Returns the membership record for `user_id` in `workspace_id`, or nil.
+  """
+  def get_membership(workspace_id, user_id) do
+    WorkspaceMember
+    |> where(workspace_id: ^workspace_id, user_id: ^user_id)
+    |> Repo.one()
+  end
+
+  @doc """
   Lists the members of a workspace with their associated users preloaded.
   """
   def list_members(workspace_id) do

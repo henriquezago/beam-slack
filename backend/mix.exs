@@ -26,7 +26,7 @@ defmodule BeamSlack.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [precommit: :test, "test.labs": :test]
     ]
   end
 
@@ -47,6 +47,13 @@ defmodule BeamSlack.MixProject do
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
       {:bcrypt_elixir, "~> 3.0"},
+      # Observability. Track 3 needs somewhere to watch processes, mailboxes, and
+      # ETS tables while it breaks them.
+      {:phoenix_live_dashboard, "~> 0.8"},
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller, "~> 1.0"},
+      # The load-test task opens N WebSocket clients against a running server.
+      {:websockex, "~> 0.4", only: [:dev, :test]},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
@@ -63,6 +70,7 @@ defmodule BeamSlack.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.labs": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only lab"],
       precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
     ]
   end

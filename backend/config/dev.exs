@@ -17,6 +17,10 @@ config :beamslack, BeamSlack.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
+# LiveDashboard at /dev/dashboard and the fault-injection endpoints at
+# /dev/faults. Both are compiled out of every other environment.
+config :beamslack, dev_routes: true
+
 config :beamslack, BeamSlackWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
@@ -50,8 +54,29 @@ config :beamslack, BeamSlackWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-# Do not include metadata nor timestamps in development logs
-config :logger, :default_formatter, format: "[$level] $message\n"
+# Development logs keep the metadata. Reading `channel_id=... duration_ms=...`
+# next to the message is the whole point of the structured fields, and Track 3
+# spends a lot of time reading logs.
+config :logger, :default_formatter, format: "[$level] $message $metadata\n"
+
+# Supervisor reports -- "child X started", "child X terminated", "reached
+# max_restarts" -- are emitted by OTP under the :sasl domain, and Elixir's Logger
+# filters that domain out by default. Which means the default configuration hides
+# exactly the events a supervision tree exists to produce, and you can watch a
+# tree collapse with nothing in the log but the first crash.
+#
+# Turning this on is the single most useful thing in Track 3. Try
+# `mix beamslack.kill presence` with and without it.
+config :logger,
+  handle_sasl_reports: true,
+  handle_otp_reports: true
+
+# ...but not the "child started" half of them, which is a few hundred lines every
+# boot and tells you nothing you did not already expect. `:logger_filters.progress/2`
+# with `:stop` drops progress reports and keeps the crash and terminate reports,
+# which are the ones worth reading. Delete this to see a supervision tree being
+# built, once.
+config :logger, :default_handler, filters: [progress: {&:logger_filters.progress/2, :stop}]
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

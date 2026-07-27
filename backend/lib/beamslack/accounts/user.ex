@@ -13,6 +13,8 @@ defmodule BeamSlack.Accounts.User do
     timestamps(type: :utc_datetime)
   end
 
+  @type t :: %__MODULE__{}
+
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:name, :email, :password])

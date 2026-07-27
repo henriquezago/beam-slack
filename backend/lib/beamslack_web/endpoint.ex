@@ -1,6 +1,28 @@
 defmodule BeamSlackWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :beamslack
 
+  # Sessions exist only so LiveDashboard has one. The API itself authenticates
+  # with a bearer token and is stateless.
+  @session_options [
+    store: :cookie,
+    key: "_beamslack_key",
+    signing_salt: "8mMJ0Iqf",
+    same_site: "Lax"
+  ]
+
+  # The WebSocket entry point. One socket connection per browser tab, carrying
+  # any number of channels. Authentication happens once, in UserSocket.connect/3.
+  socket "/socket", BeamSlackWeb.UserSocket,
+    websocket: [connect_info: [:peer_data, :user_agent]],
+    longpoll: false
+
+  # LiveDashboard is the only LiveView in this otherwise API-only app, so its
+  # socket and the session it needs exist in dev only.
+  if Application.compile_env(:beamslack, :dev_routes) do
+    socket "/live", Phoenix.LiveView.Socket,
+      websocket: [connect_info: [session: @session_options]]
+  end
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -30,5 +52,10 @@ defmodule BeamSlackWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
+
+  if Application.compile_env(:beamslack, :dev_routes) do
+    plug Plug.Session, @session_options
+  end
+
   plug BeamSlackWeb.Router
 end

@@ -67,6 +67,24 @@ defmodule BeamSlack.Channels do
   end
 
   @doc """
+  Returns true when `user_id` is a member of `channel_id`.
+  """
+  def member?(channel_id, user_id) do
+    ChannelMember
+    |> where(channel_id: ^channel_id, user_id: ^user_id)
+    |> Repo.exists?()
+  end
+
+  @doc """
+  Returns the membership record for `user_id` in `channel_id`, or nil.
+  """
+  def get_membership(channel_id, user_id) do
+    ChannelMember
+    |> where(channel_id: ^channel_id, user_id: ^user_id)
+    |> Repo.one()
+  end
+
+  @doc """
   Lists the members of a channel with their associated users preloaded.
   """
   def list_members(channel_id) do

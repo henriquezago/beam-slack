@@ -33,6 +33,28 @@ defmodule BeamSlackWeb.ConnCase do
 
   setup tags do
     BeamSlack.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    conn =
+      Phoenix.ConnTest.build_conn()
+      |> Plug.Conn.put_req_header("accept", "application/json")
+
+    {:ok, conn: conn}
+  end
+
+  @doc """
+  Attaches a bearer token for `user` to the connection.
+  """
+  def log_in_user(conn, user) do
+    Plug.Conn.put_req_header(conn, "authorization", "Bearer " <> BeamSlackWeb.Auth.sign(user))
+  end
+
+  @doc """
+  Setup helper that registers a user and authenticates the connection as them.
+
+      setup :register_and_log_in_user
+  """
+  def register_and_log_in_user(%{conn: conn}) do
+    user = BeamSlack.Fixtures.user_fixture()
+    %{conn: log_in_user(conn, user), user: user}
   end
 end

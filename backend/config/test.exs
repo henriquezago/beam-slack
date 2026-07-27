@@ -2,6 +2,18 @@ import Config
 
 config :bcrypt_elixir, log_rounds: 4
 
+# Lab 05's typing indicator expiry, short enough to observe in a test without
+# sleeping through three seconds.
+config :beamslack, typing_timeout: 100
+
+# Lab 07's default limit, small and short so its tests are fast. The tests pass
+# their own options too; this is what an implementation should fall back to.
+config :beamslack, rate_limit: [limit: 5, window_ms: 200]
+
+# The fault-injection routes and the flood target are exercised by their own
+# tests, so test gets them too.
+config :beamslack, dev_routes: true
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
